@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /DeckLock/
+Disallow: /React-Speedcube-Timer/
+Disallow: /React-Pomodoro/
+Disallow: /plasmid-db/
+Disallow: /resume-pre2020/
