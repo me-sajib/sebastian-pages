@@ -1,0 +1,24 @@
+# GitHub Action that builds the website and commits again
+
+name: autobuild
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:  # https://github.com/stefanzweifel/git-auto-commit-action#checkout-the-correct-branch
+            ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v3
+        with:
+            node-version: '14'
+      - run: npm i -g gatsby-cli@4.0.0
+      - run: npm install
+      - run: npm install --only=dev
+      - run: gatsby build
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+

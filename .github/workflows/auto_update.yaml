@@ -1,0 +1,38 @@
+# GitHub Action that updates citations and rebuilds the website
+
+name: auto update citations
+on:
+  schedule:
+    # execute once a day
+    - cron:  '0 1 * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:  # https://github.com/stefanzweifel/git-auto-commit-action#checkout-the-correct-branch
+            ref: ${{ github.head_ref }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: |
+          pip install requests
+          pip install pyyaml
+          python ./python/update_citations.py ./content/citations.yaml
+          git config --global user.name autoupdate_citations
+          git config --global user.email '${GITHUB_ACTOR}@users.noreply.github.com'
+          git commit -am "Auto update: citations"
+          git push
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+      - run: npm i -g gatsby-cli@4.0.0
+      - run: npm install
+      - run: npm install --only=dev
+      - run: gatsby build
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
